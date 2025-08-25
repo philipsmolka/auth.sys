@@ -1,0 +1,35 @@
+version: '3.8'
+services:
+  db:
+    image: postgres:15
+    container_name: auth-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: auth.sys
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+  backend:
+    build: ./backend
+    container_name: auth-backend
+    environment:
+      DB_URL: jdbc:postgresql://db:5432/auth.sys
+      DB_USERNAME: postgres
+      DB_PASSWORD: password
+      MAIL_USERNAME: philipsmolka.business@gmail.com
+      MAIL_PASSWORD: brqymhtubksxfkoo
+      API_SECRET_KEY: dev-api-key-2024
+      JWT_SECRET: dev-jwt-secret-2024-very-long-and-random
+      ADMIN_EMAIL: admin@inventory.pro
+      ADMIN_PASSWORD: admin123
+      FRONTEND_URL: http://localhost:3000
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+
+volumes:
+  db_data:
