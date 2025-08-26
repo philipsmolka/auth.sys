@@ -6,17 +6,17 @@ services:
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
-      POSTGRES_DB: auth.sys
+      POSTGRES_DB: auth_sys
     ports:
       - "5432:5432"
     volumes:
       - db_data:/var/lib/postgresql/data
 
   backend:
-    build: ./backend
+    build: .
     container_name: auth-backend
     environment:
-      DB_URL: jdbc:postgresql://db:5432/auth.sys
+      DB_URL: jdbc:postgresql://db:5432/auth_sys
       DB_USERNAME: postgres
       DB_PASSWORD: password
       MAIL_USERNAME: philipsmolka.business@gmail.com

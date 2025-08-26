@@ -1,18 +1,18 @@
 # BUILD
-FROM eclipse-temurin:23-jdk AS build
+FROM eclipse-temurin:21-jdk AS build
 WORKDIR /app
 
 COPY . .
 RUN ./mvnw clean package -DskipTests
 
 # RUN
-FROM eclipse-temurin:23-jre
+FROM eclipse-temurin:24-jre
 WORKDIR /app
 
 COPY --from=build /app/target/*.jar app.jar
 
 # DEFAULT ENV VARIABLES
-ENV DB_URL=jdbc:postgresql://db:5432/auth.sys
+ENV DB_URL=jdbc:postgresql://db:5432/auth_sys
 ENV DB_USERNAME=postgres
 ENV DB_PASSWORD=password
 ENV MAIL_USERNAME=philipsmolka.business@gmail.com
