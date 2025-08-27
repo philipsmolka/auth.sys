@@ -13,14 +13,17 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.Random;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -199,10 +202,481 @@ public class UserServiceTest {
 
         UserResponse.UserDetails response = userService.disableUserById(userId);
 
-        verify(userRepository).delete(mockUser);
+        verify(userRepository).save(mockUser);
 
-        assertEquals("User disabled successfully.", response.active());
+        assertFalse(mockUser.isEnabled());
 
+        assertEquals(false, response.active());
+
+    }
+
+    @Test
+    void disableUserByName_success(){
+
+        Long userId = 1L;
+        String userName = "Example Test";
+
+        User mockUser = new User();
+        mockUser.setId(userId);
+        mockUser.setName(userName);
+
+        when(userRepository.findByName(userName)).thenReturn(Optional.of(mockUser));
+
+        UserResponse.UserDetails response = userService.disableUserByName(userName);
+
+        verify(userRepository).save(mockUser);
+
+        assertFalse(mockUser.isEnabled());
+
+        assertEquals(false, response.active());
+
+    }
+
+    @Test
+    void disableUserByEmail_success(){
+
+        Long userId = 1L;
+        String userEmail = "test@example.com";
+
+        User mockUser = new User();
+        mockUser.setId(userId);
+        mockUser.setEmail(userEmail);
+
+        when(userRepository.findByEmail(userEmail)).thenReturn(Optional.of(mockUser));
+
+        UserResponse.UserDetails response = userService.disableUserByEmail(userEmail);
+
+        verify(userRepository).save(mockUser);
+
+        assertFalse(mockUser.isEnabled());
+
+        assertEquals(false, response.active());
+
+    }
+
+    @Test
+    void enableUserById_success(){
+
+        Long userId = 1L;
+
+        User mockUser = new User();
+        mockUser.setId(userId);
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(mockUser));
+
+        UserResponse.UserDetails response = userService.enableUserById(userId);
+
+        verify(userRepository).save(mockUser);
+
+        assertTrue(mockUser.isEnabled());
+
+        assertEquals(true, response.active());
+
+    }
+
+    @Test
+    void enableUserByName_success(){
+
+        Long userId = 1L;
+        String userName = "Example Test";
+
+        User mockUser = new User();
+        mockUser.setId(userId);
+        mockUser.setName(userName);
+
+        when(userRepository.findByName(userName)).thenReturn(Optional.of(mockUser));
+
+        UserResponse.UserDetails response = userService.enableUserByName(userName);
+
+        verify(userRepository).save(mockUser);
+
+        assertTrue(mockUser.isEnabled());
+
+        assertEquals(true, response.active());
+
+    }
+
+    @Test
+    void enableUserByEmail_success(){
+
+        Long userId = 1L;
+        String userEmail = "test@example.com";
+
+        User mockUser = new User();
+        mockUser.setId(userId);
+        mockUser.setEmail(userEmail);
+
+        when(userRepository.findByEmail(userEmail)).thenReturn(Optional.of(mockUser));
+
+        UserResponse.UserDetails response = userService.enableUserByEmail(userEmail);
+
+        verify(userRepository).save(mockUser);
+
+        assertTrue(mockUser.isEnabled());
+
+        assertEquals(true, response.active());
+
+    }
+
+    @Test
+    void changePasswordById_success(){
+
+        Long userId = 1L;
+
+        UserRequest.ChangePassword request = new UserRequest.ChangePassword(
+                "password"
+        );
+
+        User mockUser = new User();
+        mockUser.setId(userId);
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(mockUser));
+        when(passwordEncoder.encode(request.newPassword())).thenReturn("encodedPassword");
+
+
+        UserResponse.SuccessMessage response = userService.changeUserPasswordById(userId, request);
+
+        verify(userRepository).save(mockUser);
+        assertEquals("encodedPassword", mockUser.getPassword());
+        assertEquals("Password updated successfully.", response.message());
+
+    }
+
+    @Test
+    void changePasswordByName_success(){
+
+        Long userId = 1L;
+        String userName = "Example Test";
+
+        UserRequest.ChangePasswordByName request = new UserRequest.ChangePasswordByName(
+                userName,
+                "password"
+        );
+
+        User mockUser = new User();
+        mockUser.setId(userId);
+        mockUser.setName(userName);
+
+        when(userRepository.findByName(userName)).thenReturn(Optional.of(mockUser));
+        when(passwordEncoder.encode(request.newPassword())).thenReturn("encodedPassword");
+
+
+        UserResponse.SuccessMessage response = userService.changeUserPasswordByName(request);
+
+        verify(userRepository).save(mockUser);
+        assertEquals("encodedPassword", mockUser.getPassword());
+        assertEquals("Password updated successfully.", response.message());
+
+    }
+
+    @Test
+    void changePasswordByEmail_success(){
+
+        Long userId = 1L;
+        String userEmail = "test@example.com";
+
+        UserRequest.ChangePasswordByEmail request = new UserRequest.ChangePasswordByEmail(
+                userEmail,
+                "password"
+        );
+
+        User mockUser = new User();
+        mockUser.setId(userId);
+        mockUser.setEmail(userEmail);
+
+        when(userRepository.findByEmail(userEmail)).thenReturn(Optional.of(mockUser));
+        when(passwordEncoder.encode(request.newPassword())).thenReturn("encodedPassword");
+        when(userRepository.save(mockUser)).thenReturn(mockUser);
+
+        UserResponse.SuccessMessage response = userService.changeUserPasswordByEmail(request);
+
+        verify(userRepository).save(mockUser);
+        assertEquals("encodedPassword", mockUser.getPassword());
+        assertEquals("Password updated successfully.", response.message());
+
+    }
+
+    @Test
+    void changeUserRoleById(){
+
+        Long userId = 1L;
+        String userRole = "ROLE_USER";
+
+        UserRequest.ChangeRole request = new UserRequest.ChangeRole(
+                userRole
+        );
+
+        User mockUser = new User();
+        mockUser.setId(userId);
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(mockUser));
+        when(userRepository.save(mockUser)).thenReturn(mockUser);
+
+        UserResponse.UserDetails response = userService.changeUserRoleById(userId, request);
+
+        verify(userRepository).save(mockUser);
+
+        assertTrue(response.roles().contains(userRole));
+
+    }
+
+    @Test
+    void changeUserRoleByName(){
+
+        Long userId = 1L;
+        String userName = "Example Test";
+        String userRole = "ROLE_USER";
+
+        UserRequest.ChangeRoleByName request = new UserRequest.ChangeRoleByName(
+                userName,
+                userRole
+        );
+
+        User mockUser = new User();
+        mockUser.setId(userId);
+        mockUser.setName(userName);
+
+        when(userRepository.findByName(userName)).thenReturn(Optional.of(mockUser));
+        when(userRepository.save(mockUser)).thenReturn(mockUser);
+
+        UserResponse.UserDetails response = userService.changeUserRoleByName(request);
+
+        verify(userRepository).save(mockUser);
+
+        assertTrue(response.roles().contains(userRole));
+
+    }
+
+    @Test
+    void changeUserRoleByEmail(){
+
+        Long userId = 1L;
+        String userEmail = "example@test.com";
+        String userRole = "ROLE_USER";
+
+        UserRequest.ChangeRoleByEmail request = new UserRequest.ChangeRoleByEmail(
+                userEmail,
+                userRole
+        );
+
+        User mockUser = new User();
+        mockUser.setId(userId);
+        mockUser.setEmail(userEmail);
+
+        when(userRepository.findByEmail(userEmail)).thenReturn(Optional.of(mockUser));
+        when(userRepository.save(mockUser)).thenReturn(mockUser);
+
+        UserResponse.UserDetails response = userService.changeUserRoleByEmail(request);
+
+        verify(userRepository).save(mockUser);
+
+        assertTrue(response.roles().contains(userRole));
+
+    }
+
+    @Test
+    void updateUserDetailsById(){
+
+        Long userId = 1L;
+        String userName = "Example Test";
+        String userEmail = "test@example.com";
+        String userRole = "ROLE_USER";
+
+        UserRequest.Update request = new UserRequest.Update(
+                userEmail,
+                userName,
+                userRole
+        );
+
+        User mockUser = new User();
+        mockUser.setId(userId);
+        mockUser.setName("Test");
+        mockUser.setEmail("test@test.com");
+        mockUser.setRoles(List.of("USER_ROLE"));
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(mockUser));
+        when(userRepository.save(mockUser)).thenReturn(mockUser);
+
+        UserResponse.UserDetails response = userService.updateUserDetailsById(userId, request);
+
+        verify(userRepository).save(mockUser);
+
+        assertTrue(response.name().contains(userName));
+        assertTrue(response.email().contains(userEmail));
+        assertTrue(response.roles().contains(userRole));
+
+    }
+
+    @Test
+    void updateUserDetailsByName(){
+
+        Long userId = 1L;
+        String userNameToFind = "Test";
+        String userName = "Example Test";
+        String userEmail = "test@example.com";
+        String userRole = "ROLE_USER";
+
+        UserRequest.UpdateByName request = new UserRequest.UpdateByName(
+                userNameToFind,
+                userEmail,
+                userName,
+                userRole
+        );
+
+        User mockUser = new User();
+        mockUser.setId(userId);
+        mockUser.setName(userNameToFind);
+        mockUser.setEmail("test@test.com");
+        mockUser.setRoles(List.of("USER_ROLE"));
+
+        when(userRepository.findByName(userNameToFind)).thenReturn(Optional.of(mockUser));
+        when(userRepository.save(mockUser)).thenReturn(mockUser);
+
+        UserResponse.UserDetails response = userService.updateUserDetailsByName(request);
+
+        verify(userRepository).save(mockUser);
+
+        assertTrue(response.name().contains(userName));
+        assertTrue(response.email().contains(userEmail));
+        assertTrue(response.roles().contains(userRole));
+
+    }
+
+    @Test
+    void updateUserDetailsByEmail(){
+
+        Long userId = 1L;
+        String userEmailToFind = "test@example.com";
+        String userName = "Example Test";
+        String userEmail = "test@test.com";
+        String userRole = "ROLE_USER";
+
+        UserRequest.UpdateByEmail request = new UserRequest.UpdateByEmail(
+                userEmailToFind,
+                userEmail,
+                userName,
+                userRole
+        );
+
+        User mockUser = new User();
+        mockUser.setId(userId);
+        mockUser.setName("test");
+        mockUser.setEmail(userEmailToFind);
+        mockUser.setRoles(List.of("USER_ROLE"));
+
+        when(userRepository.findByEmail(userEmailToFind)).thenReturn(Optional.of(mockUser));
+        when(userRepository.save(mockUser)).thenReturn(mockUser);
+
+        UserResponse.UserDetails response = userService.updateUserDetailsByEmail(request);
+
+        verify(userRepository).save(mockUser);
+
+        assertTrue(response.name().contains(userName));
+        assertTrue(response.email().contains(userEmail));
+        assertTrue(response.roles().contains(userRole));
+
+    }
+
+    @Test
+    void getAllUsers_success() {
+
+        List<User> mockUsers = new ArrayList<>();
+
+        for (int i = 1; i <= 3; i++) {
+            User mockUser = new User();
+            mockUser.setId((long) i);
+            mockUser.setName("User " + i);
+            mockUser.setEmail("user" + i + "@example.com");
+            mockUsers.add(mockUser);
+        }
+
+        Pageable pageable = PageRequest.of(0, 10);
+        Page<User> mockPage = new PageImpl<>(mockUsers);
+
+        when(userRepository.findAll(pageable)).thenReturn(mockPage);
+
+        Page<UserResponse.UserDetails> response = userService.getAllUsers(pageable);
+
+        verify(userRepository).findAll(pageable);
+
+        assertEquals(mockUsers.size(), response.getContent().size());
+        for (int i = 0; i < mockUsers.size(); i++) {
+            assertEquals(mockUsers.get(i).getId(), response.getContent().get(i).id());
+            assertEquals(mockUsers.get(i).getName(), response.getContent().get(i).name());
+            assertEquals(mockUsers.get(i).getEmail(), response.getContent().get(i).email());
+        }
+    }
+
+    @Test
+    void getUserById_success(){
+
+        Long userId = 1L;
+
+        User mockUser = new User();
+        mockUser.setId(userId);
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(mockUser));
+
+        UserResponse.UserDetails response = userService.getUserById(userId);
+
+        verify(userRepository).findById(userId);
+
+        assertEquals(userId, response.id());
+
+    }
+
+    @Test
+    void getUserByName_success(){
+
+        Long userId = 1L;
+        String userName = "Example Test";
+
+        User mockUser = new User();
+        mockUser.setId(userId);
+        mockUser.setName(userName);
+
+        when(userRepository.findByName(userName)).thenReturn(Optional.of(mockUser));
+
+        UserResponse.UserDetails response = userService.getUserByName(userName);
+
+        verify(userRepository).findByName(userName);
+
+        assertEquals(userName, response.name());
+
+    }
+
+    @Test
+    void getUserByEmail_success(){
+
+        Long userId = 1L;
+        String userEmail = "test@example.com";
+
+        User mockUser = new User();
+        mockUser.setId(userId);
+        mockUser.setEmail(userEmail);
+
+        when(userRepository.findByEmail(userEmail)).thenReturn(Optional.of(mockUser));
+
+        UserResponse.UserDetails response = userService.getUserByEmail(userEmail);
+
+        verify(userRepository).findByEmail(userEmail);
+
+        assertEquals(userEmail, response.email());
+
+    }
+
+    @Test
+    void userExistByEmail() {
+
+        String userEmail = "test@example.com";
+
+        when(userRepository.existsByEmail(userEmail)).thenReturn(true);
+
+        boolean response = userService.userExistsByEmail(userEmail);
+
+        verify(userRepository).existsByEmail(userEmail);
+
+        assertTrue(response);
     }
 
 }

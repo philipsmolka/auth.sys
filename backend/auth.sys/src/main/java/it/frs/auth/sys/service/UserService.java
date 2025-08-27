@@ -122,6 +122,11 @@ public class UserService {
      * @throws InvalidInputException if newRole is not allowed
      */
     private UserResponse.UserDetails performUserDetailsUpdate(User user, String newName, String newEmail, String newRole) {
+
+        String oldUserName = user.getName();
+        String oldUserEmail = user.getEmail();
+        List<String> oldUserRoles = user.getRoles();
+
         checkAdminModification(user);
         if (!user.getEmail().equals(newEmail) && userRepository.existsByEmail(newEmail)) {
             throw new ResourceAlreadyExistsException("Email " + newEmail + " is already taken.");
@@ -133,7 +138,12 @@ public class UserService {
         user.setEmail(newEmail);
         user.setRoles(List.of(newRole));
         User updatedUser = userRepository.save(user);
-        log.info("Updated details for user with ID: {}", user.getId());
+        log.info(
+                "Updated details for user with ID: {} Name: {} => {} Email: {} => {} Roles: {} => {}",
+                user.getId(), oldUserName, newName,
+                oldUserEmail, newEmail,
+                oldUserRoles, List.of(newRole)
+        );
         return toUserDetails(updatedUser);
     }//DONE
 
@@ -284,6 +294,40 @@ public class UserService {
         user.setActive(true);
         userRepository.save(user);
         log.info("Enabled user with id: {}", id);
+        return toUserDetails(user);
+    }//DONE
+
+    /**
+     * Enables a user account by their username.
+     *
+     * @param name containing the user's name
+     * @throws ResourceNotFoundException if user not found
+     * @throws OperationForbiddenException if user is an administrator
+     */
+    @Transactional
+    public UserResponse.UserDetails enableUserByName(String name) {
+        User user = findUserByNameOrThrow(name);
+        checkAdminModification(user);
+        user.setActive(true);
+        userRepository.save(user);
+        log.info("Enabled user with name: {}", name);
+        return toUserDetails(user);
+    }//DONE
+
+    /**
+     * Enables a user account by their email.
+     *
+     * @param email containing the user's email
+     * @throws ResourceNotFoundException if user not found
+     * @throws OperationForbiddenException if user is an administrator
+     */
+    @Transactional
+    public UserResponse.UserDetails enableUserByEmail(String email) {
+        User user = findUserByEmailOrThrow(email);
+        checkAdminModification(user);
+        user.setActive(true);
+        userRepository.save(user);
+        log.info("Enabled user with email: {}", email);
         return toUserDetails(user);
     }//DONE
 
