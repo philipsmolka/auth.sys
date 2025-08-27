@@ -151,6 +151,10 @@ public class User implements UserDetails {
         return password;
     }
 
+    public void setId(Long id) {
+        this.id = id;
+    }
+
     /**
      * Returns the unique ID of the user.
      *

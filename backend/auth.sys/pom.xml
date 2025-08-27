@@ -24,6 +24,14 @@
 	</properties>
 
 	<dependencies>
+
+		<dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-inline</artifactId>
+			<version>4.11.0</version>
+			<scope>test</scope>
+		</dependency>
+
 		<dependency>
 			<groupId>org.springdoc</groupId>
 			<artifactId>springdoc-openapi-starter-webflux-ui</artifactId>
@@ -135,15 +143,6 @@
 		</plugins>
 	</build>
 
-	<repositories>
-		<repository>
-			<id>sonatype-snapshots</id>
-			<name>Sonatype Snapshots</name>
-			<url>https://s01.oss.sonatype.org/content/repositories/snapshots/</url>
-			<snapshots>
-				<enabled>true</enabled>
-			</snapshots>
-		</repository>
-	</repositories>
+
 
 </project>
