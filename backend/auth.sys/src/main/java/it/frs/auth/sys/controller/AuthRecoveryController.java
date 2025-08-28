@@ -7,7 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import it.frs.auth.sys.dto.AuthRecoveryRequest;
 import it.frs.auth.sys.dto.AuthRecoveryResponse;
-import it.frs.auth.sys.service.AuthRecoveryService;
+import it.frs.auth.sys.service.AccountRecoveryService;
 
 @CrossOrigin(origins = "http://localhost:3000")
 @RestController
@@ -15,7 +15,7 @@ import it.frs.auth.sys.service.AuthRecoveryService;
 @RequiredArgsConstructor
 public class AuthRecoveryController {
 
-    private final AuthRecoveryService recoveryService;
+    private final AccountRecoveryService recoveryService;
 
     /**
      * Initiates the password recovery process by sending a confirmation email.

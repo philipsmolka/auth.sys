@@ -20,7 +20,7 @@ import java.util.Map;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class AuthRecoveryService {
+public class AccountRecoveryService {
 
     private final UserRepository userRepository;
     private final EmailService emailService;
