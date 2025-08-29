@@ -84,10 +84,9 @@ public class EmailService {
      * Asynchronously sends a notification that the user's account has been banned.
      *
      * @param toEmail The recipient's email address.
-     * @param token   A token which could be used for reference or other purposes (currently unused).
      */
     @Async
-    public void sendAccountBannedEmail(String toEmail, String token) {
+    public void sendAccountBannedEmail(String toEmail) {
         String subject = "FRS";
         String body = "Your account has been banned!";
 
@@ -103,10 +102,9 @@ public class EmailService {
      * Asynchronously sends a generic warning or notification email to the user.
      *
      * @param toEmail The recipient's email address.
-     * @param token   A token which could be used for reference or other purposes (currently unused).
      */
     @Async
-    public void sendAccountWarnEmail(String toEmail, String token) {
+    public void sendAccountWarnEmail(String toEmail) {
         String subject = "FRS";
         String body = "Your account has been warned!";
 
