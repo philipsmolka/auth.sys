@@ -46,8 +46,6 @@ public class ApiKeyAuthFilter extends OncePerRequestFilter {
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
-        // Brak wyjątków dla Swaggera — tylko minimalne wykluczenia (opcjonalne)
-        return "OPTIONS".equalsIgnoreCase(request.getMethod())
-                || request.getRequestURI().startsWith("/api/auth");
+        return "OPTIONS".equalsIgnoreCase(request.getMethod());
     }
 }

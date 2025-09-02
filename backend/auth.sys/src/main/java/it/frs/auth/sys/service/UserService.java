@@ -1,5 +1,6 @@
 package it.frs.auth.sys.service;
 
+import it.frs.auth.sys.exception.*;
 import jakarta.validation.constraints.Email;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -12,13 +13,10 @@ import lombok.extern.slf4j.Slf4j;
 
 import it.frs.auth.sys.dto.UserRequest;
 import it.frs.auth.sys.dto.UserResponse;
-import it.frs.auth.sys.exception.InvalidInputException;
-import it.frs.auth.sys.exception.OperationForbiddenException;
-import it.frs.auth.sys.exception.ResourceAlreadyExistsException;
-import it.frs.auth.sys.exception.ResourceNotFoundException;
 import it.frs.auth.sys.model.User;
 import it.frs.auth.sys.repository.UserRepository;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -136,7 +134,7 @@ public class UserService {
         }
         user.setName(newName);
         user.setEmail(newEmail);
-        user.setRoles(List.of(newRole));
+        user.setRoles(new ArrayList<>(List.of(newRole)));
         User updatedUser = userRepository.save(user);
         log.info(
                 "Updated details for user with ID: {} Name: {} => {} Email: {} => {} Roles: {} => {}",
@@ -239,6 +237,9 @@ public class UserService {
     @Transactional
     public UserResponse.UserDetails disableUserById(Long id) {
         User user = findUserByIdOrThrow(id);
+        if(!user.isEnabled()){
+            throw new ResourceAlreadyExistsException("User already disabled");
+        }
         checkAdminModification(user);
         user.setActive(false);
         userRepository.save(user);
@@ -290,6 +291,9 @@ public class UserService {
     @Transactional
     public UserResponse.UserDetails enableUserById(Long id){
         User user = findUserByIdOrThrow(id);
+        if(user.isEnabled()){
+            throw new ResourceAlreadyExistsException("User already enabled.");
+        }
         checkAdminModification(user);
         user.setActive(true);
         userRepository.save(user);
@@ -404,7 +408,7 @@ public class UserService {
             throw new InvalidInputException("Invalid role: " + newRole);
         }
 
-        user.setRoles(List.of(newRole));
+        user.setRoles(new ArrayList<>(List.of(newRole)));
         User updatedUser = userRepository.save(user);
         log.info("Changed role for user with ID: {}", id);
         return toUserDetails(updatedUser);

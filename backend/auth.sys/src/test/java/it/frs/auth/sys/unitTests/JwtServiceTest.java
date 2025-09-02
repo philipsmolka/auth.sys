@@ -1,4 +1,4 @@
-package it.frs.auth.sys;
+package it.frs.auth.sys.unitTests;
 
 import it.frs.auth.sys.model.User;
 import it.frs.auth.sys.service.JwtService;

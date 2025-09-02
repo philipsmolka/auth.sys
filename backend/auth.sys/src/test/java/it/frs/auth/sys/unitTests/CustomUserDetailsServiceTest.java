@@ -1,8 +1,7 @@
-package it.frs.auth.sys;
+package it.frs.auth.sys.unitTests;
 
 import it.frs.auth.sys.model.User;
 import it.frs.auth.sys.repository.UserRepository;
-import it.frs.auth.sys.service.AuthService;
 import it.frs.auth.sys.service.CustomUserDetailsService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

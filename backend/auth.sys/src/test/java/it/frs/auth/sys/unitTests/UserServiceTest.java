@@ -1,4 +1,4 @@
-package it.frs.auth.sys;
+package it.frs.auth.sys.unitTests;
 
 import it.frs.auth.sys.dto.UserRequest;
 import it.frs.auth.sys.dto.UserResponse;

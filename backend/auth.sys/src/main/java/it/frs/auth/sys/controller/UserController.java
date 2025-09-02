@@ -33,7 +33,7 @@ public class UserController {
      * @return response entity with created user details
      */
     @PostMapping
-    public ResponseEntity<UserResponse.UserDetails> add(@Valid @RequestBody UserRequest.Add request) {
+    public ResponseEntity<UserResponse.UserDetails> createUser(@Valid @RequestBody UserRequest.Add request) {
         UserResponse.UserDetails response = userService.addUser(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }//DONE
@@ -79,7 +79,7 @@ public class UserController {
 
     /**
      * Enables a user by ID.
-     * Marks the user as active..
+     * Marks the user as active.
      *
      * @param id the ID of the user to enable
      * @return response entity containing the updated user details
@@ -91,17 +91,17 @@ public class UserController {
     }
 
     /**
-     * Disables a user by ID.
-     * Marks the user as inactive without deleting them from the database.
+     * Updates user role by ID.
      *
-     * @param id the ID of the user to disable
+     * @param id the ID of the user to change role
      * @return response entity containing the updated user details
      */
     @PatchMapping("/{id}/role")
-    public ResponseEntity<UserResponse.UserDetails> changeRole(@PathVariable Long id, @Valid UserRequest.ChangeRole request) {
+    public ResponseEntity<UserResponse.UserDetails> changeRole(@PathVariable Long id, @Valid @RequestBody UserRequest.ChangeRole request) {
         UserResponse.UserDetails response = userService.changeUserRoleById(id, request);
         return ResponseEntity.ok(response);
     }//DONE
+
 
     /**
      * Updates user details identified by ID.

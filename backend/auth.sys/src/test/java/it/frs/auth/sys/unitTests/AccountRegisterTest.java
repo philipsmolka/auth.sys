@@ -1,4 +1,4 @@
-package it.frs.auth.sys;
+package it.frs.auth.sys.unitTests;
 
 import it.frs.auth.sys.dto.UserRequest;
 import it.frs.auth.sys.dto.UserResponse;
@@ -6,7 +6,6 @@ import it.frs.auth.sys.exception.ResourceAlreadyExistsException;
 import it.frs.auth.sys.model.User;
 import it.frs.auth.sys.repository.UserRepository;
 import it.frs.auth.sys.service.AccountRegisterService;
-import it.frs.auth.sys.service.AuthService;
 import it.frs.auth.sys.service.EmailService;
 import it.frs.auth.sys.service.JwtService;
 import org.junit.jupiter.api.BeforeEach;
